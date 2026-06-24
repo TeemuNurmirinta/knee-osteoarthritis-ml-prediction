@@ -1,2 +1,2 @@
 # knee-osteoarthritis-ml-prediction
-Machine learning models for predicting knee osteoarthritis using data from the Osteoarthritis Initiative (OAI). Includes model implementation and statistical comparison analyses for CMBBE publication.
+Machine learning models for predicting knee osteoarthritis using data from the Osteoarthritis Initiative (OAI). The repository includes implementation of ML predictive model, code for determining optimal scaling factors between machine learning–based cartilage (MLC) and finite element (FEM) models, and statistical analyses for model comparison, as presented in the CMBBE publication.
