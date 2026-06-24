@@ -1,0 +1,135 @@
+#Code for finding the optimal scaling factors between MLC and FEM models. Works also for MLC and JLE+FEM models.
+
+import numpy as np
+import os
+from scipy.optimize import minimize
+from sklearn.metrics import roc_auc_score
+
+
+# =========================
+# PATHS
+# =========================
+ML_PATH   = r""
+FEM_PATH  = r""
+TRUE_PATH = r""
+
+
+# =========================
+# LOAD DATA
+# =========================
+ML_all, FEM_all, KL_all = [], [], []
+
+for file in os.listdir(ML_PATH):
+
+    if not file.endswith(".txt"):
+        continue
+
+    ML_vals = np.loadtxt(os.path.join(ML_PATH, file))
+
+    fem_file = os.path.join(FEM_PATH, file)
+    true_file = os.path.join(TRUE_PATH, file)
+
+    if not os.path.exists(fem_file) or not os.path.exists(true_file):
+        continue
+
+    FEM = np.loadtxt(fem_file)
+    KL  = np.loadtxt(true_file)
+
+    n = min(len(ML_vals), len(FEM), len(KL))
+
+    ML_all.append(ML_vals[:n])
+    FEM_all.append(FEM[:n])
+    KL_all.append(KL[:n])
+
+
+ML_all = np.concatenate(ML_all)
+FEM_all = np.concatenate(FEM_all)
+KL_all = np.concatenate(KL_all)
+
+
+# =========================
+# CLASS MASKS
+# =========================
+KL01_mask = (ML_all == 0.5)
+KL2_mask  = (ML_all == 1.0)
+KL34_mask = (ML_all == 1.5)
+
+
+# =========================
+# FUNCTION: COMPUTE AUCs
+# =========================
+def compute_all_aucs(score):
+
+    aucs = {}
+
+    # KL01 vs KL2
+    mask = (KL_all == 0) | (KL_all == 2)
+    aucs["KL01 vs KL2"] = roc_auc_score(KL_all[mask] == 2, score[mask])
+
+    # KL2 vs KL34
+    mask = (KL_all == 2) | (KL_all == 4)
+    aucs["KL2 vs KL34"] = roc_auc_score(KL_all[mask] == 4, score[mask])
+
+    # KL01 vs KL34
+    mask = (KL_all == 0) | (KL_all == 4)
+    aucs["KL01 vs KL34"] = roc_auc_score(KL_all[mask] == 4, score[mask])
+
+    return aucs
+
+
+# =========================
+# PURE MEAN AUC LOSS
+# =========================
+def mean_auc_loss(params):
+
+    alpha, beta, gamma = params
+
+    score = np.zeros_like(FEM_all)
+
+    score[KL01_mask] = FEM_all[KL01_mask] * alpha
+    score[KL2_mask]  = FEM_all[KL2_mask]  * beta
+    score[KL34_mask] = FEM_all[KL34_mask] * gamma
+
+    aucs = compute_all_aucs(score)
+    auc_values = np.array(list(aucs.values()))
+
+    return -np.mean(auc_values)
+
+
+# =========================
+# OPTIMISATION
+# =========================
+init = [0.5, 1.0, 1.5]
+
+result = minimize(
+    mean_auc_loss,
+    init,
+    method='Nelder-Mead'
+)
+
+alpha_opt, beta_opt, gamma_opt = result.x
+
+
+# =========================
+# FINAL SCORE + AUCs
+# =========================
+score = np.zeros_like(FEM_all)
+
+score[KL01_mask] = FEM_all[KL01_mask] * alpha_opt
+score[KL2_mask]  = FEM_all[KL2_mask]  * beta_opt
+score[KL34_mask] = FEM_all[KL34_mask] * gamma_opt
+
+final_aucs = compute_all_aucs(score)
+
+
+# =========================
+# PRINT RESULTS
+# =========================
+print("\n✅ Optimised weights (Mean AUC):")
+print(f"alpha (pKL01): {alpha_opt:.4f}")
+print(f"beta  (pKL2):  {beta_opt:.4f}")
+print(f"gamma (pKL34): {gamma_opt:.4f}")
+
+print("\n✅ Pairwise AUC values:")
+for k, v in final_aucs.items():
+    print(f"{k}: {v*100:.2f}")
