@@ -1,22 +1,11 @@
 """
 Machine Learning Pipeline for Knee Osteoarthritis Prediction
 
-This script implements a two-stage classification framework:
-1) Binary classification: KL = 0 vs KL ∈ {2, 4}
-2) Secondary classification: KL = 2 vs KL = 4
-
-Dataset:
-- Osteoarthritis Initiative (OAI)-based features
-- Finite element-derived and radiographic predictors
-
-Outputs:
-- Weighted F1-score
-- Balanced accuracy
-- Confusion matrix (aggregated across folds)
-
+Title: Prediction of Knee Osteoarthritis Using Machine Learning Enhanced Finite Element Modeling – Data from the Osteoarthritis Initiative
 Author: Teemu Nurmirinta
 Journal: CMBBE
 Year: 2026
+email: teemu.nurmirinta@uef.fi
 """
 
 # =========================
@@ -88,8 +77,8 @@ def load_data(filepath):
 def two_stage_model(X, y, y_binary, train_idx, test_idx):
     """
     Two-stage classification:
-    Stage 1: KL 0 vs KL {2,4}
-    Stage 2: KL 2 vs KL 4
+    Stage 1: KL0 vs KL2/KL34
+    Stage 2: KL2 vs KL34
 
     Returns
     -------
