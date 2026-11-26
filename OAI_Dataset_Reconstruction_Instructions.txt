@@ -15,7 +15,7 @@
 
 5. Generate knee joint dimension measurements
 -Download the corresponding knee radiograph DICOM files from the OAI repository.
--Use the MATLAB script provided in this GitHub repository to automatically extract the knee joint dimension measurements used in the study.
+-Use the MATLAB script provided in this GitHub repository (Knee_Join_Measurement_Matlab_code.zip) to automatically extract the knee joint dimension measurements used in the study.
 -Add the generated measurements to the analysis dataset.
 
 6. Construct the outcome variables
