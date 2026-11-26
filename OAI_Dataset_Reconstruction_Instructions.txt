@@ -1,7 +1,7 @@
 # The preprocessing workflow required to reproduce the study dataset from the raw OAI data consists of the following steps:
 
 1. Obtain the raw OAI data
--Register for access to the Osteoarthritis Initiative (OAI) database and download the required SAS data files from the OAI repository.
+-Register for access to the Osteoarthritis Initiative (OAI) database (https://nda.nih.gov/oai) and download the required SAS data files from the OAI repository.
 
 2. Identify the required variables
 -Use the OAI data dictionaries, feature guide, and the variables reported in Table 1 of the manuscript to identify the datasets and variables required for the analysis.
@@ -10,7 +10,7 @@
 -Retrieve the selected variables from the downloaded SAS files and merge them using participant identifiers to create a unified dataset.
 
 4. Apply participant exclusion criteria
--Remove participants who do not meet the study inclusion criteria according to the exclusion rules described in the manuscript.
+-Remove participants who do not meet the study inclusion criteria according to the exclusion rules described in the manuscript Figure 1.
 -Exclude participants with missing data required for the analyses.
 
 5. Generate knee joint dimension measurements
